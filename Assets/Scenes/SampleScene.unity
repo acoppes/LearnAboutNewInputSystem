@@ -233,6 +233,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerInput: {fileID: 0}
+  _inputActions: {fileID: -944628639613478452, guid: 05416a517a0985440a400f00512d80d6,
+    type: 3}
 --- !u!4 &1067326129
 Transform:
   m_ObjectHideFlags: 0
