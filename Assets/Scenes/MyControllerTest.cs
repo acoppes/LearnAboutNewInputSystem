@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Experimental.Input;
+using UnityEngine.Experimental.Input.Controls;
 using UnityEngine.Experimental.Input.Layouts;
 using UnityEngine.Experimental.Input.Plugins.PlayerInput;
 using UnityEngine.Experimental.Input.Plugins.Users;
@@ -14,18 +15,10 @@ public class MyControllerTest : MonoBehaviour
     // TODO: dos o mas controllers, como se identifican?
 
     [SerializeField]
-    private Gamepad _gamepad;
-
-    [SerializeField]
-    private InputDevice _inputDevice;
-
-    [SerializeField]
     private InputActionAsset _inputActions;
 
-    private InputAction _action;
-
     private InputUser[] _users;
-    
+
     private void Start()
     {
 //        foreach (var device in playerInput.devices)
@@ -37,15 +30,24 @@ public class MyControllerTest : MonoBehaviour
 //            }
 //        }
 
-        _gamepad = InputSystem.GetDevice<Gamepad>();
+       //  _gamepad = InputSystem.GetDevice<Gamepad>();
         
 //        playerInput.deviceLostEvent.AddListener(OnDeviceLost);
 //        playerInput.deviceRegainedEvent.AddListener(OnDeviceRegained);
 //        _inputDevice = playerInput.devices[0];
 
-        _users = new InputUser[4];
+        InputUser.listenForUnpairedDeviceActivity = 4;
+        InputUser.onUnpairedDeviceUsed += OnInputUserOnOnUnpairedDeviceUsed;
+        InputUser.onChange += InputUserOnOnChange;
+
+        _users = new InputUser[2];
 
         var keyboard = InputDevice.all.FirstOrDefault(d => d is Keyboard);
+
+        if (keyboard != null)
+        {
+            Debug.Log("found keyboard!!");
+        }
         
         for (var i = 0; i < _users.Length; i++)
         {
@@ -56,27 +58,34 @@ public class MyControllerTest : MonoBehaviour
             }   
         }
 
-        InputUser.listenForUnpairedDeviceActivity = 4;
-        InputUser.onUnpairedDeviceUsed += OnInputUserOnOnUnpairedDeviceUsed;
-        InputUser.onChange += InputUserOnOnChange;
+
     }
 
     private void InputUserOnOnChange(InputUser user, InputUserChange change, InputDevice device)
     {
-        Debug.LogFormat("Input changed: {0}, {1}, {2}", user, change, device);
+        Debug.LogFormat("Input changed: event:{0}, device:{1}", change, device != null ? device.name : "null");
+
         if (change == InputUserChange.DevicePaired)
         {
+            Debug.LogFormat("Device paired, user: {0}", user.id);
             // TODO: destroy old scriptable object?
             
             var actions = ScriptableObject.Instantiate(_inputActions);
             user.AssociateActionsWithUser(actions);
+
+            var player = _users.ToList().IndexOf(user);
+
+            var actionName = string.Format("Player{0}/Movement", player);
             
-            _action = actions.FindAction("Fire");
-            _action.Enable();
+            Debug.LogFormat("Find action name: {0}", actionName);
+            var action = actions.FindAction(actionName);
+            action.Enable();
             
-            _action.performed += delegate(InputAction.CallbackContext context)
+            action.performed += delegate(InputAction.CallbackContext context)
             {
-                Debug.LogFormat("User: {0}.Fire action!", user.id);
+                var stickControl = context.control as StickControl;
+                if (stickControl != null)
+                    Debug.LogFormat("User: {0}.movement!, {1}", user.id, stickControl.ReadValue());
             };
             
         } else if (change == InputUserChange.DeviceUnpaired)
