@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Experimental.Input;
 using UnityEngine.Experimental.Input.Layouts;
@@ -44,9 +45,15 @@ public class MyControllerTest : MonoBehaviour
 
         _users = new InputUser[4];
 
+        var keyboard = InputDevice.all.FirstOrDefault(d => d is Keyboard);
+        
         for (var i = 0; i < _users.Length; i++)
         {
             _users[i] = InputUser.CreateUserWithoutPairedDevices();
+            if (keyboard != null)
+            {
+                InputUser.PerformPairingWithDevice(keyboard, _users[i], InputUserPairingOptions.None);
+            }   
         }
 
         InputUser.listenForUnpairedDeviceActivity = 4;
@@ -87,10 +94,11 @@ public class MyControllerTest : MonoBehaviour
             for (var i = 0; i < _users.Length; i++)
             {
                 var user = _users[i];
-                if (user.pairedDevices.Count == 0)
+                var pairedGamepads = user.pairedDevices.Count(d => d is Gamepad);
+                if (pairedGamepads == 0)
                 {
                     _users[i] = InputUser.PerformPairingWithDevice(gamepad, _users[i],
-                        InputUserPairingOptions.UnpairCurrentDevicesFromUser);
+                        InputUserPairingOptions.None);
                     return;
                 }
             }

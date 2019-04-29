@@ -106,7 +106,7 @@ namespace Gemserk.Learn.Input
                 {
                     ""name"": """",
                     ""id"": ""737f1eac-1461-4109-9b89-8ca76c1dcefe"",
-                    ""path"": ""<Keyboard>/#(A)"",
+                    ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
