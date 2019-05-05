@@ -7,11 +7,11 @@ public class MyGamePlayersManager : MonoBehaviour
 {
     public void OnPlayerJoined(PlayerInput playerInput)
     {
-        Debug.LogFormat("Player {0} joined", playerInput.user);
+        Debug.LogFormat("Player {0} joined", playerInput.user.id);
     }
 
     public void OnPlayerLeft(PlayerInput playerInput)
     {
-        Debug.LogFormat("Player {0} left", playerInput.user);
+        Debug.LogFormat("Player {0} left", playerInput.user.id);
     }
 }

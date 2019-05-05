@@ -260,7 +260,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_NotificationBehavior: 2
-  m_MaxPlayerCount: 4
+  m_MaxPlayerCount: -1
   m_AllowJoining: 1
   m_JoinPlayersWithMissingDevices: 0
   m_JoinBehavior: 1
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_TypeName: UnityEngine.Experimental.Input.Plugins.PlayerInput.PlayerInputManager+PlayerLeftEvent,
       Unity.InputSystem, Version=0.2.8.0, Culture=neutral, PublicKeyToken=null
   m_JoinAction:
-    m_UseReference: 1
+    m_UseReference: 0
     m_Action:
       m_Name: Action
       m_ExpectedControlLayout: 
@@ -308,13 +308,13 @@ MonoBehaviour:
       m_SingletonActionBindings:
       - m_Name: 
         m_Id: 60f74ce2-e24c-40b4-8219-4d8d8bb10727
-        m_Path: 
+        m_Path: <Gamepad>/buttonSouth
         m_Interactions: 
         m_Processors: 
         m_Groups: 
         m_Action: Action
         m_Flags: 0
-    m_Reference: {fileID: 2693711366518282991, guid: 05416a517a0985440a400f00512d80d6,
+    m_Reference: {fileID: 2749965548895959640, guid: 05416a517a0985440a400f00512d80d6,
       type: 3}
   m_PlayerPrefab: {fileID: 736082956825605290, guid: 553bc1c8dfbf82043b8d07ce71c47762,
     type: 3}
