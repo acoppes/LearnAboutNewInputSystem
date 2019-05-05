@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Experimental.Input;
+using UnityEngine.Experimental.Input.Composites;
 using UnityEngine.Experimental.Input.Controls;
 using UnityEngine.Experimental.Input.Layouts;
 using UnityEngine.Experimental.Input.Plugins.PlayerInput;
@@ -18,6 +19,10 @@ public class MyControllerTest : MonoBehaviour
     private InputActionAsset _inputActions;
 
     private InputUser[] _users;
+
+    private InputActionAsset[] _userActions;
+
+  //  private InputActionTrace _testTrace;
 
     private void Start()
     {
@@ -36,11 +41,16 @@ public class MyControllerTest : MonoBehaviour
 //        playerInput.deviceRegainedEvent.AddListener(OnDeviceRegained);
 //        _inputDevice = playerInput.devices[0];
 
-        InputUser.listenForUnpairedDeviceActivity = 4;
-        InputUser.onUnpairedDeviceUsed += OnInputUserOnOnUnpairedDeviceUsed;
+       //  InputUser.listenForUnpairedDeviceActivity = 4;
+       //  InputUser.onUnpairedDeviceUsed += OnInputUserOnOnUnpairedDeviceUsed;
+       return;
+       
         InputUser.onChange += InputUserOnOnChange;
 
-        _users = new InputUser[2];
+        const int players = 2;
+        
+        _users = new InputUser[players];
+        _userActions = new InputActionAsset[players];
 
         var keyboard = InputDevice.all.FirstOrDefault(d => d is Keyboard);
 
@@ -52,13 +62,29 @@ public class MyControllerTest : MonoBehaviour
         for (var i = 0; i < _users.Length; i++)
         {
             _users[i] = InputUser.CreateUserWithoutPairedDevices();
+            _userActions[i] = ScriptableObject.Instantiate(_inputActions);
+            _users[i].AssociateActionsWithUser(_userActions[i]);
+            
+            var actionName = string.Format("Player{0}/Movement", i);
+            
+            var action = _userActions[i].FindAction(actionName);
+            action.Enable();
+
+            var userIndex = i;
+            
+            action.performed += delegate(InputAction.CallbackContext context)
+            {
+                var direction = context.ReadValue<Vector2>();
+                Debug.LogFormat("User: {0}.movement!, {1}", _users[userIndex].id, direction);      
+            };
+            
             if (keyboard != null)
             {
-                InputUser.PerformPairingWithDevice(keyboard, _users[i], InputUserPairingOptions.None);
+                InputUser.PerformPairingWithDevice(keyboard, _users[i]);
             }   
         }
 
-
+     //   _testTrace.SubscribeTo(_userActions[0].FindAction("Player0/Movement"));
     }
 
     private void InputUserOnOnChange(InputUser user, InputUserChange change, InputDevice device)
@@ -67,27 +93,8 @@ public class MyControllerTest : MonoBehaviour
 
         if (change == InputUserChange.DevicePaired)
         {
+            // var player = _users.ToList().IndexOf(user);
             Debug.LogFormat("Device paired, user: {0}", user.id);
-            // TODO: destroy old scriptable object?
-            
-            var actions = ScriptableObject.Instantiate(_inputActions);
-            user.AssociateActionsWithUser(actions);
-
-            var player = _users.ToList().IndexOf(user);
-
-            var actionName = string.Format("Player{0}/Movement", player);
-            
-            Debug.LogFormat("Find action name: {0}", actionName);
-            var action = actions.FindAction(actionName);
-            action.Enable();
-            
-            action.performed += delegate(InputAction.CallbackContext context)
-            {
-                var stickControl = context.control as StickControl;
-                if (stickControl != null)
-                    Debug.LogFormat("User: {0}.movement!, {1}", user.id, stickControl.ReadValue());
-            };
-            
         } else if (change == InputUserChange.DeviceUnpaired)
         {
             Debug.LogFormat("Device unpaired for user: {0}", user.id);
@@ -113,10 +120,21 @@ public class MyControllerTest : MonoBehaviour
             }
         }
     }
+    
+    public void OnActionTestContinuous(InputAction.CallbackContext c) {
+        Debug.Log("llega");
+    }
 
     private void Update()
     {
-        
+//        var action = _userActions[0].FindAction("Player0/Movement");
+//
+//        var t = _testTrace.ToArray();
+//        foreach (var ti in t)
+//        {
+//            // ti.ReadValue<Vector2>();
+//            Debug.LogFormat("User: {0}.movement!, {1}", ti.ReadValue<Vector2>());    
+//        }
     }
 
 }
